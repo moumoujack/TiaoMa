@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批量条码生成工具</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+SC:wght@400;500;700&display=swap');
+
+        :root {
+            --bg: #f0ede8;
+            --card: #faf9f7;
+            --border: #d6cfc5;
+            --accent: #1a1a1a;
+            --accent2: #c0392b;
+            --muted: #8a8278;
+            --success: #27ae60;
+            --info: #2980b9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'IBM Plex Sans SC', sans-serif;
+            background-color: var(--bg);
+            color: var(--accent);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        header h1 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            border-bottom: 3px solid var(--accent2);
+            display: inline-block;
+            padding-bottom: 4px;
+        }
+
+        header p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .container {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 760px;
+            overflow: hidden;
+        }
+
+        /* ── 导入区域 ── */
+        .import-section {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hint {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            background: #f5f2ed;
+            border-left: 3px solid var(--accent2);
+            border-radius: 2px;
+        }
+
+        .hint strong { color: var(--accent); }
+
+        .hint code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #e8e4de;
+            padding: 1px 5px;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            resize: vertical;
+            background: #fdfcfb;
+            color: var(--accent);
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 16px;
+        }
+
+        textarea:focus { border-color: var(--accent); }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: 'IBM Plex Sans SC', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+        }
+
+        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.4 !important; cursor: not-allowed; transform: none !important; }
+
+        .btn-excel { background-color: var(--success); }
+        .btn-text  { background-color: var(--info); }
+        .btn-nav   { background-color: var(--accent); min-width: 100px; justify-content: center; }
+
+        /* ── 展示区域 ── */
+        .display-section {
+            padding: 36px 28px 28px;
+        }
+
+        .barcode-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 260px;
+            justify-content: center;
+            border: 1.5px dashed var(--border);
+            border-radius: 4px;
+            padding: 30px 20px;
+            background: #fff;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .barcode-wrapper.has-data {
+            border-style: solid;
+            border-color: var(--border);
+        }
+
+        #productNameDisplay {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 18px;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        #barcode { display: block; }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 0 4px;
+        }
+
+        #statusText {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .kbd-hint {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kbd-hint kbd {
+            display: inline-block;
+            background: #e8e4de;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-size: 11px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* ── Loading 遮罩 ── */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(240, 237, 232, 0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #loadingOverlay.show { display: flex; }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent2);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #loadingOverlay p {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* 错误状态 */
+        .error-msg {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--accent2);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>正在解析文件，请稍候…</p>
+</div>
+
+<header>
+    <h1>条码生成工具</h1>
+    <p>Batch Barcode Viewer · CODE128</p>
+</header>
+
+<div class="container">
+
+    <!-- 导入区 -->
+    <div class="import-section">
+        <div class="hint">
+            <strong>导入说明</strong><br>
+            · <strong>文本加载：</strong>每行粘贴一个条码，点击「加载文本数据」<br>
+            · <strong>Excel 导入：</strong>要求 <code>第一列 = 条码</code>，<code>第二列 = 商品名称</code>；首行若为标题将自动跳过
+        </div>
+
+        <textarea id="barcodeInput" placeholder="粘贴纯条码，每行一个…&#10;例：&#10;690123456789&#10;123456789012"></textarea>
+
+        <div class="action-buttons">
+            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
+            <label for="excelFile" class="btn btn-excel">📂 导入 Excel 文件</label>
+            <button onclick="loadFromText()" class="btn btn-text">📝 加载文本数据</button>
+        </div>
+    </div>
+
+    <!-- 展示区 -->
+    <div class="display-section">
+        <div class="barcode-wrapper" id="barcodeWrapper">
+            <div id="productNameDisplay">等待导入数据…</div>
+            <svg id="barcode"></svg>
+            <div id="errorMsg" class="error-msg"></div>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">暂无数据</span>
+            <span class="kbd-hint">
+                键盘导航：<kbd>←</kbd> 上一个 &nbsp;<kbd>→</kbd> 下一个
+            </span>
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" class="btn btn-nav" onclick="prevBarcode()" disabled>← 上一个</button>
+            <button id="nextBtn" class="btn btn-nav" onclick="nextBarcode()" disabled>下一个 →</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let barcodeDataList = [];
+    let currentIndex = -1;
+
+    // ── 判断某行是否是标题行 ──────────────────────────────────────────
+    function isHeaderRow(row) {
+        if (!row || row.length === 0) return false;
+        const cell = String(row[0] || '').trim().toLowerCase();
+        // 常见标题关键词
+        const keywords = ['条码', 'barcode', 'sku', '编码', '编号', 'code'];
+        return keywords.some(k => cell.includes(k));
+    }
+
+    // ── Excel 导入 ────────────────────────────────────────────────────
+    document.getElementById('excelFile').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        showLoading(true);
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                barcodeDataList = [];
+                let startRow = 0;
+
+                // 自动跳过标题行
+                if (rows.length > 0 && isHeaderRow(rows[0])) {
+                    startRow = 1;
+                }
+
+                for (let i = startRow; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row || row.length < 1) continue;
+
+                    // 第一列：条码；第二列：商品名称（可选）
+                    const code = row[0] !== undefined ? String(row[0]).trim() : '';
+                    const name = row[1] !== undefined ? String(row[1]).trim() : '（无商品名称）';
+
+                    if (code === '') continue;
+                    barcodeDataList.push({ code, name });
+                }
+
+                showLoading(false);
+
+                // 重置文件选择器，允许重复选同一文件
+                document.getElementById('excelFile').value = '';
+
+                if (barcodeDataList.length === 0) {
+                    alert('未找到有效数据！\n请确认：第一列为条码，第二列为商品名称。');
+                    return;
+                }
+
+                document.getElementById('barcodeInput').value = '';
+                currentIndex = 0;
+                renderBarcode();
+                setWrapperActive(true);
+
+            } catch (err) {
+                showLoading(false);
+                alert('文件解析失败：' + err.message);
+            }
+        };
+
+        reader.onerror = function () {
+            showLoading(false);
+            alert('文件读取失败，请重试。');
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+
+    // ── 文本加载 ──────────────────────────────────────────────────────
+    function loadFromText() {
+        const lines = document.getElementById('barcodeInput').value
+            .split('\n')
+            .map(l => l.trim())
+            .filter(l => l !== '');
+
+        if (lines.length === 0) {
+            alert('文本框为空，请输入至少一个条码！');
+            return;
+        }
+
+        barcodeDataList = lines.map(code => ({ code, name: '（手动输入）' }));
+        document.getElementById('excelFile').value = '';
+        currentIndex = 0;
+        renderBarcode();
+        setWrapperActive(true);
+    }
+
+    // ── 渲染条码 ──────────────────────────────────────────────────────
+    function renderBarcode() {
+        if (currentIndex < 0 || currentIndex >= barcodeDataList.length) return;
+
+        const { code, name } = barcodeDataList[currentIndex];
+
+        document.getElementById('productNameDisplay').textContent = name;
+        document.getElementById('errorMsg').textContent = '';
+
+        try {
+            JsBarcode('#barcode', code, {
+                format: 'CODE128',
+                lineColor: '#1a1a1a',
+                width: 2.2,
+                height: 100,
+                displayValue: true,
+                fontSize: 16,
+                fontOptions: 'bold',
+                font: 'IBM Plex Mono, monospace',
+                margin: 12,
+                background: '#ffffff'
+            });
+        } catch {
+            document.getElementById('barcode').innerHTML = '';
+            document.getElementById('errorMsg').textContent =
+                `⚠ 条码无效或含非法字符：${code}`;
+        }
+
+        document.getElementById('statusText').textContent =
+            `${currentIndex + 1} / ${barcodeDataList.length}`;
+
+        updateButtons();
+    }
+
+    function prevBarcode() {
+        if (currentIndex > 0) { currentIndex--; renderBarcode(); }
+    }
+
+    function nextBarcode() {
+        if (currentIndex < barcodeDataList.length - 1) { currentIndex++; renderBarcode(); }
+    }
+
+    function updateButtons() {
+        document.getElementById('prevBtn').disabled = (currentIndex <= 0);
+        document.getElementById('nextBtn').disabled =
+            (currentIndex >= barcodeDataList.length - 1 || barcodeDataList.length === 0);
+    }
+
+    // ── 键盘导航 ──────────────────────────────────────────────────────
+    document.addEventListener('keydown', function (e) {
+        if (barcodeDataList.length === 0) return;
+        if (document.activeElement.tagName === 'TEXTAREA') return; // 输入时不拦截
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); prevBarcode(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); nextBarcode(); }
+    });
+
+    // ── 辅助函数 ──────────────────────────────────────────────────────
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('show', show);
+    }
+
+    function setWrapperActive(active) {
+        document.getElementById('barcodeWrapper').classList.toggle('has-data', active);
+    }
+</script>
+</body>
+</html>
