@@ -19,7 +19,7 @@
             --success: #27ae60;
             --info: #2980b9;
             --hover-bg: #faf9f7;
-            --drawer-bg: #161b22; /* 参考截图的深色侧边栏 */
+            --drawer-bg: #161b22; 
             --drawer-text: #c9d1d9;
             --drawer-border: #30363d;
         }
@@ -50,7 +50,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* 菜单按钮 (仿截图) */
         .menu-btn {
             background: #21262d;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -66,73 +65,41 @@
             margin-right: 16px;
             transition: all 0.2s;
         }
-        .menu-btn:hover {
-            background: #30363d;
-        }
+        .menu-btn:hover { background: #30363d; }
         .menu-btn span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background-color: #8b949e;
-            border-radius: 2px;
+            display: block; width: 20px; height: 2px;
+            background-color: #8b949e; border-radius: 2px;
         }
 
         .topbar-title {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            font-size: 16px; font-weight: 600; color: #fff;
+            letter-spacing: 0.5px; display: flex; align-items: center; gap: 12px;
         }
         .topbar-title span.dot { color: var(--accent2); }
         .topbar-title span.tag { color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 400; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; }
 
         /* ══ 侧边抽屉菜单 ════════════════════════════════════════ */
         .drawer-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(2px);
-            z-index: 90;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); z-index: 90; opacity: 0;
+            visibility: hidden; transition: all 0.3s ease;
         }
-        .drawer-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
+        .drawer-overlay.show { opacity: 1; visibility: visible; }
 
         .side-drawer {
-            position: fixed;
-            top: 0;
-            left: -380px;
-            width: 100%;
-            max-width: 360px;
-            height: 100vh;
-            background: var(--card);
-            z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100%; max-width: 360px;
+            height: 100vh; background: var(--card); z-index: 100;
             box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+            transform: translateX(-100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
         }
-        .side-drawer.open {
-            transform: translateX(380px);
-        }
-        @media (max-width: 400px) {
-            .side-drawer.open { transform: translateX(100%); left: -100%; }
-        }
+        .side-drawer.open { transform: translateX(0); }
 
         .drawer-header {
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
+            padding: 20px 24px; display: flex; align-items: center;
+            justify-content: space-between; border-bottom: 1px solid var(--border);
             background: var(--hover-bg);
         }
         .drawer-header h3 { font-size: 16px; color: var(--accent); display: flex; align-items: center; gap: 8px;}
@@ -142,45 +109,26 @@
         }
         .close-btn:hover { color: var(--accent2); }
 
-        .drawer-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-        }
+        .drawer-content { flex: 1; overflow-y: auto; padding: 24px; }
 
-        .drawer-section {
-            margin-bottom: 32px;
-        }
+        .drawer-section { margin-bottom: 32px; }
         .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed var(--border);
+            font-size: 14px; font-weight: 700; color: var(--accent);
+            margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+            padding-bottom: 8px; border-bottom: 1px dashed var(--border);
         }
 
-        /* 底部操作区 (按钮并排) */
+        /* 底部操作区 */
         .drawer-actions {
-            padding: 20px 24px;
-            border-top: 1px solid var(--border);
-            background: var(--hover-bg);
-            display: flex;
-            gap: 16px; /* 按钮保持适当距离 */
+            padding: 20px 24px; border-top: 1px solid var(--border);
+            background: var(--hover-bg); display: flex; gap: 16px; 
         }
 
-        /* ══ 配置项样式 ═════════════════════════════════════════ */
+        /* ══ 配置项与按钮样式 ═════════════════════════════════════ */
         .cfg-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-            gap: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px; gap: 12px;
         }
-        .cfg-row:last-of-type { margin-bottom: 0; }
         .cfg-row label { font-size: 13px; color: var(--muted); font-weight: 500; }
         .cfg-row .rhs { display: flex; align-items: center; gap: 6px; font-size: 13px; }
 
@@ -206,7 +154,7 @@
             width: 100%; height: 160px; padding: 12px; border: 1px solid var(--border);
             border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
             resize: vertical; background: #fff; color: var(--accent); outline: none;
-            transition: border-color 0.2s; margin-top: 16px;
+            transition: border-color 0.2s;
         }
         textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,26,26,0.1); }
 
@@ -221,32 +169,53 @@
             font-size: 12px; color: #a0988e; line-height: 1.6;
             margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);
         }
-        code { font-family: 'IBM Plex Mono', monospace; background: var(--hover-bg); padding: 2px 4px; border-radius: 3px; }
+
+        /* 配置保存控制栏 */
+        .config-controls {
+            display: flex; gap: 8px; justify-content: flex-end;
+            margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+        }
 
         /* 按钮通用样式 */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            padding: 12px 16px; border: none; border-radius: 6px; font-size: 14px;
+            padding: 12px 16px; border: 1px solid transparent; /* 增加透明边框防止跳动 */
+            border-radius: 6px; font-size: 14px;
             font-family: 'IBM Plex Sans SC', sans-serif; font-weight: 600; cursor: pointer;
             transition: all 0.2s; color: #fff; flex: 1; text-align: center;
         }
-        .btn:hover { transform: translateY(-1px); filter: brightness(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .btn:active { transform: translateY(0); box-shadow: none; }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .btn-excel { background: var(--success); }
         .btn-text  { background: var(--info); }
+        
+        .btn-sm { padding: 8px 12px; font-size: 12px; flex: none; }
+        
+        /* 核心修改：保存配置与取消按钮的状态统一 */
+        .btn-primary { background: var(--accent); border-color: var(--accent); }
+        .btn-primary:disabled { background: transparent; border-color: var(--border); color: var(--muted); }
+        
+        .btn-outline { background: transparent; border-color: var(--border); color: var(--muted); }
+        .btn-outline:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+        /* 清空数据按钮样式 */
+        .btn-clear {
+            width: 100%; margin-top: 12px;
+            background: transparent; border-color: var(--border); color: var(--accent2);
+        }
+        .btn-clear:hover:not(:disabled) {
+            background: var(--accent2); color: #fff; border-color: var(--accent2);
+        }
+        .btn-clear:disabled { color: var(--muted); border-color: var(--border); }
 
         /* ══ 主体布局 ══════════════════════════════════════════ */
-        .main-container {
-            width: 100%;
-            max-width: 600px; /* 居中显示，无需分栏 */
-            padding: 40px 24px;
-            margin: 0 auto;
-        }
+        .main-container { width: 100%; max-width: 600px; padding: 40px 24px; margin: 0 auto; }
 
         .card {
             background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04); overflow: hidden; display: flex;
-            flex-direction: column;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04); overflow: hidden; display: flex; flex-direction: column;
         }
         .card-header {
             padding: 16px 20px; background: var(--hover-bg); border-bottom: 1px solid var(--border);
@@ -254,7 +223,6 @@
         }
         .card-body { padding: 24px; }
 
-        /* 右侧预览区 */
         .barcode-wrapper {
             display: flex; flex-direction: column; align-items: center; min-height: 280px;
             justify-content: center; border: 2px dashed var(--border); border-radius: 6px;
@@ -263,15 +231,24 @@
         .barcode-wrapper.has-data { border-style: solid; border-color: #e2ddd5; background: #fdfdfc; }
 
         #productNameDisplay { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 24px; text-align: center; }
+        #productNameDisplay.placeholder { font-size: 16px; color: var(--muted); font-weight: 400; }
         #barcode { display: block; }
-        .error-msg { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--accent2); margin-top: 12px; }
+        .error-msg {
+            font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--accent2);
+            margin-top: 16px; padding: 12px 14px;
+            background: #fff5f5; border: 1px solid #f5c6c6; border-radius: 6px;
+            line-height: 1.6; display: none; width: 100%; text-align: left;
+        }
+        .error-msg.show { display: block; }
+        .error-msg .err-title { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .error-msg .err-detail { color: #a94442; font-size: 12px; word-break: break-all; }
 
         .status-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding: 0 8px; }
         #statusText { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); }
         .kbd-hint { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); }
         .kbd-hint kbd { background: var(--hover-bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 11px; }
 
-        .controls { display: flex; gap: 12px; margin-top: 16px; }
+        .controls { display: flex; gap: 8px; margin-top: 16px; }
         .btn-nav {
             flex: 1; padding: 12px; border: 1px solid var(--accent); border-radius: 4px;
             font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; color: var(--accent); transition: all 0.2s;
@@ -279,7 +256,6 @@
         .btn-nav:hover:not(:disabled) { background: var(--accent); color: #fff; }
         .btn-nav:disabled { border-color: var(--border); color: var(--muted); cursor: not-allowed; background: var(--hover-bg); }
 
-        /* Loading */
         #loadingOverlay {
             display: none; position: fixed; inset: 0; background: rgba(244,242,238,0.9);
             backdrop-filter: blur(4px); z-index: 300; align-items: center; justify-content: center;
@@ -297,14 +273,12 @@
 
 <div id="loadingOverlay">
     <div class="spinner"></div>
-    <p style="font-family:'IBM Plex Mono', monospace; font-weight:600;">正在解析文件，请稍候…</p>
+    <p style="font-family:'IBM Plex Mono', monospace; font-weight:600;">正在处理，请稍候…</p>
 </div>
 
 <div class="topbar">
-    <button class="menu-btn" id="menuBtn" title="打开设置">
-        <span></span>
-        <span></span>
-        <span></span>
+    <button class="menu-btn" id="menuBtn" title="打开设置" aria-label="打开设置" aria-expanded="false" aria-controls="sideDrawer">
+        <span></span><span></span><span></span>
     </button>
     <div class="topbar-title">
         条码批量生成器 <span class="dot">·</span> <span class="tag">CODE128</span>
@@ -313,7 +287,7 @@
 
 <div id="drawerOverlay" class="drawer-overlay"></div>
 
-<aside id="sideDrawer" class="side-drawer">
+<aside id="sideDrawer" class="side-drawer" role="dialog" aria-modal="true" aria-label="数据导入设置">
     <div class="drawer-header">
         <h3>⚙️ 数据导入设置</h3>
         <button id="closeBtn" class="close-btn">&times;</button>
@@ -321,50 +295,56 @@
     
     <div class="drawer-content">
         <div class="drawer-section">
-            <div class="section-title">📊 Excel 读取配置</div>
+            <div class="section-title">📊 解析配置</div>
+            
             <div class="cfg-row">
-                <label>起始读取行</label>
-                <div class="rhs">第 <input type="number" id="excelStartRow" value="2" min="1"> 行起</div>
+                <label>Excel 起始读取行</label>
+                <div class="rhs">第 <input type="number" id="excelStartRow" class="config-input" value="2" min="1" step="1"> 行起</div>
             </div>
             <div class="cfg-row">
-                <label>条码所在列</label>
-                <div class="rhs">第 <input type="number" id="excelBarcodeCol" value="2" min="1"> 列</div>
+                <label>Excel 条码所在列</label>
+                <div class="rhs">第 <input type="number" id="excelBarcodeCol" class="config-input" value="2" min="1" step="1"> 列</div>
             </div>
             <div class="cfg-row">
-                <label>商品名所在列</label>
-                <div class="rhs">第 <input type="number" id="excelNameCol" value="3" min="0"> 列</div>
+                <label>Excel 名称所在列</label>
+                <div class="rhs">第 <input type="number" id="excelNameCol" class="config-input" value="3" min="0" step="1"> 列</div>
             </div>
-            <div class="cfg-note">提示：列序号从 <code>1</code> 开始；商品名列填 <code>0</code> 代表不读取名称。</div>
-        </div>
-
-        <div class="drawer-section">
-            <div class="section-title">📝 纯文本录入配置</div>
-            <div class="cfg-row">
-                <label>每行字段顺序</label>
+            
+            <div class="cfg-row" style="margin-top: 24px;">
+                <label>文本每行字段顺序</label>
                 <div class="toggle-group">
-                    <input type="radio" name="textOrder" id="orderBarcodeFirst" value="barcode_first" checked>
+                    <input type="radio" name="textOrder" id="orderBarcodeFirst" class="config-input" value="barcode_first" checked>
                     <label for="orderBarcodeFirst">条码 - 名称</label>
-                    <input type="radio" name="textOrder" id="orderNameFirst" value="name_first">
+                    <input type="radio" name="textOrder" id="orderNameFirst" class="config-input" value="name_first">
                     <label for="orderNameFirst">名称 - 条码</label>
                 </div>
             </div>
             <div class="cfg-row">
-                <label>字段分隔符</label>
+                <label>文本字段分隔符</label>
                 <div class="rhs">
-                    <input type="text" class="delim-input" id="textDelimiter" placeholder="留空为 Tab">
-                    <span class="tab-chip" onclick="setTabDelimiter()" title="插入 Tab 符">↹ Tab</span>
+                    <input type="text" class="delim-input config-input" id="textDelimiter" placeholder="留空为 Tab">
+                    <button type="button" class="tab-chip" id="tabChipBtn" title="插入 Tab 符">↹ Tab</button>
                 </div>
             </div>
-            <textarea id="barcodeInput" placeholder="从 Excel 复制多行粘贴至此，或手动输入..."></textarea>
-            <div class="cfg-note">提示：若留空分隔符，将默认识别 Tab（常用于直接从 Excel 复制相邻列的粘贴）。</div>
+
+            <div class="config-controls">
+                <button id="cancelConfigBtn" class="btn btn-sm btn-outline" disabled>取消更改</button>
+                <button id="saveConfigBtn" class="btn btn-sm btn-primary" disabled>保存配置</button>
+            </div>
+            <div class="cfg-note">提示：列序号从 1 开始，填 0 忽略名称列；Excel 仅读取第一个工作表。留空分隔符默认识别 Tab。更改配置后请先保存。<br>注意：自定义分隔符不应出现在条码内容中，否则会导致字段切割错误。</div>
+        </div>
+
+        <div class="drawer-section" style="margin-bottom: 0;">
+            <div class="section-title">📝 纯文本数据</div>
+            <textarea id="barcodeInput" placeholder="在此粘贴多行文本数据，点击下方加载文本..."></textarea>
+            <button id="clearBtn" class="btn btn-clear" disabled>🗑️ 清空所有导入数据</button>
         </div>
     </div>
 
     <div class="drawer-actions">
         <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
-        <label for="excelFile" class="btn btn-excel">📂 导入excle</label>
-        
-        <button onclick="loadFromText()" class="btn btn-text">🚀 加载文本</button>
+        <label for="excelFile" class="btn btn-excel">📂 导入Excel</label>
+        <button id="loadTextBtn" class="btn btn-text">🚀 加载文本</button>
     </div>
 </aside>
 
@@ -375,7 +355,10 @@
             <div class="barcode-wrapper" id="barcodeWrapper">
                 <div id="productNameDisplay" style="color: var(--muted); font-size: 16px;">请点击左上角菜单导入数据…</div>
                 <svg id="barcode"></svg>
-                <div id="errorMsg" class="error-msg"></div>
+                <div id="errorMsg" class="error-msg">
+                    <div class="err-title"><span id="errIcon" aria-hidden="true"></span><span id="errTitle"></span></div>
+                    <div class="err-detail" id="errDetail"></div>
+                </div>
             </div>
 
             <div class="status-bar">
@@ -384,15 +367,15 @@
             </div>
 
             <div class="controls">
-                <button id="prevBtn" class="btn-nav" onclick="prevBarcode()" disabled>← 上一个</button>
-                <button id="nextBtn" class="btn-nav" onclick="nextBarcode()" disabled>下一个 →</button>
+                <button id="prevBtn" class="btn-nav" disabled>← 上一个</button>
+                <button id="nextBtn" class="btn-nav" disabled>下一个 →</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // 侧边栏逻辑
+    // --- 侧边栏交互逻辑 ---
     const menuBtn = document.getElementById('menuBtn');
     const closeBtn = document.getElementById('closeBtn');
     const sideDrawer = document.getElementById('sideDrawer');
@@ -402,9 +385,15 @@
         if (show) {
             sideDrawer.classList.add('open');
             drawerOverlay.classList.add('show');
+            menuBtn.setAttribute('aria-expanded', 'true');
+            // Move focus into drawer for keyboard users
+            requestAnimationFrame(() => closeBtn.focus());
         } else {
             sideDrawer.classList.remove('open');
             drawerOverlay.classList.remove('show');
+            menuBtn.setAttribute('aria-expanded', 'false');
+            // Return focus to trigger button
+            menuBtn.focus();
         }
     }
 
@@ -412,106 +401,280 @@
     closeBtn.addEventListener('click', () => toggleDrawer(false));
     drawerOverlay.addEventListener('click', () => toggleDrawer(false));
 
+    // --- 配置保存与取消防串改逻辑 ---
+    const DEFAULT_SETTINGS = {
+        excelStartRow: '2',
+        excelBarcodeCol: '2',
+        excelNameCol: '3',
+        textOrder: 'barcode_first',
+        textDelimiter: ''
+    };
+    let savedSettings = (() => {
+        try {
+            const stored = localStorage.getItem('barcodeToolSettings');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                // 防御性校验：确保解析结果是普通对象而非数组或原始值
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    return { ...DEFAULT_SETTINGS, ...parsed };
+                }
+            }
+            return { ...DEFAULT_SETTINGS };
+        } catch { return { ...DEFAULT_SETTINGS }; }
+    })();
 
-    // 业务逻辑
-    let barcodeDataList = [];
-    let currentIndex = -1;
-
-    function getExcelConfig() {
-        return {
-            startRow:   Math.max(1, parseInt(document.getElementById('excelStartRow').value) || 2),
-            barcodeCol: Math.max(1, parseInt(document.getElementById('excelBarcodeCol').value) || 2),
-            nameCol:    parseInt(document.getElementById('excelNameCol').value) ?? 3,
+    function isConfigDirty() {
+        const current = {
+            excelStartRow: document.getElementById('excelStartRow').value,
+            excelBarcodeCol: document.getElementById('excelBarcodeCol').value,
+            excelNameCol: document.getElementById('excelNameCol').value,
+            textOrder: document.querySelector('input[name="textOrder"]:checked').value,
+            textDelimiter: document.getElementById('textDelimiter').value
         };
+        for (const key in savedSettings) {
+            if (savedSettings[key] !== current[key]) return true;
+        }
+        return false;
     }
 
-    function getTextConfig() {
-        const order = document.querySelector('input[name="textOrder"]:checked').value;
-        const raw   = document.getElementById('textDelimiter').value;
-        return { order, delim: raw === '' ? '\t' : raw };
+    function updateConfigButtons() {
+        const dirty = isConfigDirty();
+        document.getElementById('saveConfigBtn').disabled = !dirty;
+        document.getElementById('cancelConfigBtn').disabled = !dirty;
+    }
+
+    // Legacy alias used by callers that need both check + update
+    function checkConfigDirty() {
+        const dirty = isConfigDirty();
+        updateConfigButtons();
+        return dirty;
+    }
+
+    // 监听所有 config-input 的变化
+    document.querySelectorAll('.config-input').forEach(input => {
+        input.addEventListener('input', checkConfigDirty);
+        input.addEventListener('change', checkConfigDirty);
+    });
+
+    function saveConfig() {
+        savedSettings = {
+            excelStartRow: document.getElementById('excelStartRow').value,
+            excelBarcodeCol: document.getElementById('excelBarcodeCol').value,
+            excelNameCol: document.getElementById('excelNameCol').value,
+            textOrder: document.querySelector('input[name="textOrder"]:checked').value,
+            textDelimiter: document.getElementById('textDelimiter').value
+        };
+        try { localStorage.setItem('barcodeToolSettings', JSON.stringify(savedSettings)); } catch {}
+        checkConfigDirty();
+    }
+
+    function cancelConfig() {
+        document.getElementById('excelStartRow').value = savedSettings.excelStartRow;
+        document.getElementById('excelBarcodeCol').value = savedSettings.excelBarcodeCol;
+        document.getElementById('excelNameCol').value = savedSettings.excelNameCol;
+        document.querySelector(`input[name="textOrder"][value="${savedSettings.textOrder}"]`).checked = true;
+        document.getElementById('textDelimiter').value = savedSettings.textDelimiter;
+        checkConfigDirty();
     }
 
     function setTabDelimiter() {
-        document.getElementById('textDelimiter').value = '\t';
+        // Represent Tab as empty string, matching the savedSettings convention
+        // (loadFromText converts '' → actual \t at parse time)
+        document.getElementById('textDelimiter').value = '';
+        checkConfigDirty();
     }
 
+    // --- 业务处理逻辑 ---
+    let barcodeDataList = [];
+    let currentIndex = -1;
+
     document.getElementById('excelFile').addEventListener('change', function (e) {
+        if (isConfigDirty()) {
+            alert("⚠️ 您的配置已修改，请先点击【保存配置】或【取消更改】，再导入数据！");
+            document.getElementById('excelFile').value = ''; // 重置文件选择
+            return;
+        }
+
         const file = e.target.files[0];
         if (!file) return;
         showLoading(true);
 
         const reader = new FileReader();
         reader.onload = function (ev) {
+            // 延迟一帧让 loading spinner 先渲染，再执行同步的 XLSX.read
+            setTimeout(function() {
             try {
-                const cfg  = getExcelConfig();
+                // 文件类型白名单校验（accept 属性仅为 UI 提示，不能阻止手动选择其他格式）
+                const allowedTypes = ['.xlsx', '.xls', '.csv'];
+                const fileName = file.name.toLowerCase();
+                if (!allowedTypes.some(ext => fileName.endsWith(ext))) {
+                    showLoading(false);
+                    alert(`不支持的文件格式：${file.name}
+请选择 .xlsx、.xls 或 .csv 文件。`);
+                    document.getElementById('excelFile').value = '';
+                    return;
+                }
+                // 使用已保存的配置
+                const cfg = {
+                    startRow:   Math.max(1, Math.round(parseFloat(savedSettings.excelStartRow)) || 2),
+                    barcodeCol: Math.max(1, Math.round(parseFloat(savedSettings.excelBarcodeCol)) || 2),
+                    nameCol:    Math.max(0, Math.round(parseFloat(savedSettings.excelNameCol)) || 0),
+                };
+
                 const data = new Uint8Array(ev.target.result);
                 const wb   = XLSX.read(data, { type: 'array' });
-                const ws   = wb.Sheets[wb.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+                const ws   = wb.Sheets[wb.SheetNames[0]]; // 注：仅读取第一个工作表
+                // raw:true 保留原始数值，避免 Excel 将纯数字条码格式化为科学计数法或丢失精度
+                // 取值时统一 toString() 转字符串
+                const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
 
                 barcodeDataList = [];
-
                 for (let i = cfg.startRow - 1; i < rows.length; i++) {
                     const row  = rows[i] || [];
-                    const code = String(row[cfg.barcodeCol - 1] ?? '').trim();
+                    // 数值型单元格用 toString() 还原完整数字，文本型直接转字符串
+                    const code = (row[cfg.barcodeCol - 1] ?? '').toString().trim();
                     if (code === '') continue;
 
                     let name = '（无商品名称）';
                     if (cfg.nameCol > 0) {
-                        const n = String(row[cfg.nameCol - 1] ?? '').trim();
+                        const n = (row[cfg.nameCol - 1] ?? '').toString().trim();
                         if (n !== '') name = n;
                     }
                     barcodeDataList.push({ code, name });
                 }
 
                 showLoading(false);
-                document.getElementById('excelFile').value = '';
-
                 if (barcodeDataList.length === 0) {
                     alert(`未找到有效数据！\n配置：从第 ${cfg.startRow} 行起，条码在第 ${cfg.barcodeCol} 列。`);
                     return;
                 }
 
                 document.getElementById('barcodeInput').value = '';
+                document.getElementById('excelFile').value = ''; // 重置文件缓存，允许重复导入同一文件
                 currentIndex = 0;
                 renderBarcode();
                 document.getElementById('barcodeWrapper').classList.add('has-data');
-                
-                // 成功后自动收起抽屉
                 toggleDrawer(false);
 
             } catch (err) {
                 showLoading(false);
                 alert('文件解析失败：' + err.message);
             }
+            }, 0); // end setTimeout
         };
         reader.onerror = () => { showLoading(false); alert('文件读取失败，请重试。'); };
         reader.readAsArrayBuffer(file);
     });
 
     function loadFromText() {
-        const tc    = getTextConfig();
+        if (isConfigDirty()) {
+            alert("⚠️ 您的配置已修改，请先点击【保存配置】或【取消更改】，再加载文本！");
+            return;
+        }
+
+        const order = savedSettings.textOrder;
+        const delim = savedSettings.textDelimiter === '' ? '\t' : savedSettings.textDelimiter;
+        
         const lines = document.getElementById('barcodeInput').value
             .split('\n').map(l => l.trim()).filter(l => l !== '');
 
-        if (lines.length === 0) { alert('文本框为空，请输入至少一个条码！'); return; }
+        if (lines.length === 0) { alert('文本框为空，请输入至少一行数据！'); return; }
 
         barcodeDataList = lines.map(line => {
-            const idx = line.indexOf(tc.delim);
-            if (idx === -1) return { code: line, name: '（无商品名称）' };
+            // barcode_first: use first delimiter (barcode on left, name can contain delimiter)
+            // name_first:    use last delimiter  (name on left,    code on right)
+            const idx = order === 'barcode_first' ? line.indexOf(delim) : line.lastIndexOf(delim);
+            if (idx === -1) {
+                // No delimiter found: entire line is treated according to mode
+                // barcode_first → whole line is the code
+                // name_first    → whole line is the name, code is missing
+                if (order === 'name_first') {
+                    return { code: '', name: line };  // validateCode will surface the error
+                }
+                return { code: line, name: '（无商品名称）' };
+            }
             const a = line.slice(0, idx).trim();
-            const b = line.slice(idx + tc.delim.length).trim();
-            return tc.order === 'barcode_first'
+            const b = line.slice(idx + delim.length).trim();
+            return order === 'barcode_first'
                 ? { code: a, name: b || '（无商品名称）' }
                 : { code: b, name: a || '（无商品名称）' };
-        });
+        }).filter(item => item.code !== '');  // 与 Excel 路径对齐：空条码不入列表
+
+        const skipped = lines.length - barcodeDataList.length;
+        if (barcodeDataList.length === 0) {
+            alert('未找到有效条码数据！\n请检查文本格式与字段顺序设置。');
+            return;
+        }
 
         currentIndex = 0;
         renderBarcode();
+        document.getElementById('excelFile').value = ''; // 清除文件缓存
         document.getElementById('barcodeWrapper').classList.add('has-data');
-        
-        // 成功后自动收起抽屉
         toggleDrawer(false);
+        if (skipped > 0) {
+            // 延迟提示，避免与抽屉关闭动画冲突
+            setTimeout(() => alert(`已加载 ${barcodeDataList.length} 条数据，跳过 ${skipped} 行无效数据（条码为空或缺失）。`), 350);
+        }
+    }
+
+    // --- 清空数据功能 ---
+    function clearData() {
+        if (!confirm('确定要清空所有已导入的数据及文本输入框吗？')) return;
+        
+        barcodeDataList = [];
+        currentIndex = -1;
+        
+        // 重置所有输入源
+        document.getElementById('barcodeInput').value = '';
+        document.getElementById('excelFile').value = '';
+        
+        // 重置 UI 显示
+        document.getElementById('barcodeWrapper').classList.remove('has-data');
+        const nameEl = document.getElementById('productNameDisplay');
+        nameEl.textContent = '请点击左上角菜单导入数据…';
+        nameEl.classList.add('placeholder');
+        
+        document.getElementById('barcode').innerHTML = '';
+        clearError();
+        document.getElementById('statusText').textContent = '0 / 0';
+        
+        updateButtons();
+    }
+
+    // --- CODE128 字段校验 ---
+    function validateCode(code) {
+        // NOTE: callers guarantee code is a non-empty string; this guard is defensive only.
+        if (!code) {
+            return { ok: false, reason: 'empty', title: '条码字段为空', detail: '该行条码列读取到空值，请检查数据源。' };
+        }
+        // 80-char limit is a practical scanner/label constraint, not a CODE128 protocol limit.
+        if (code.length > 80) {
+            return { ok: false, reason: 'toolong', title: `条码过长（${code.length} 字符，建议不超过 80）`, detail: `内容：${code}` };
+        }
+        // CODE128 仅支持 ASCII 0–127
+        const illegal = [...code].filter(c => c.charCodeAt(0) > 127);
+        if (illegal.length > 0) {
+            const unique = [...new Set(illegal)].map(c => `"${c}"(U+${c.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')})`);
+            return {
+                ok: false, reason: 'charset',
+                title: `含非法字符（CODE128 仅支持 ASCII 0–127）`,
+                detail: `非法字符：${unique.join('、')}\n完整内容：${code}`
+            };
+        }
+        return { ok: true };
+    }
+
+    function showError(title, detail) {
+        const el = document.getElementById('errorMsg');
+        document.getElementById('errIcon').textContent = '⚠';
+        document.getElementById('errTitle').textContent = title;
+        document.getElementById('errDetail').textContent = detail;
+        el.classList.add('show');
+    }
+
+    function clearError() {
+        const el = document.getElementById('errorMsg');
+        el.classList.remove('show');
     }
 
     function renderBarcode() {
@@ -520,29 +683,35 @@
         
         const nameEl = document.getElementById('productNameDisplay');
         nameEl.textContent = name;
-        nameEl.style.color = 'var(--accent)';
-        nameEl.style.fontSize = '22px';
+        nameEl.classList.remove('placeholder');
         
-        document.getElementById('errorMsg').textContent = '';
+        clearError();
+        document.getElementById('barcode').innerHTML = '';
 
-        try {
-            JsBarcode('#barcode', code, {
-                format: 'CODE128',
-                lineColor: '#1a1a1a',
-                width: 2.5,
-                height: 120,
-                displayValue: true,
-                fontSize: 18,
-                fontOptions: 'bold',
-                font: 'IBM Plex Mono, monospace',
-                margin: 15,
-                background: '#ffffff'
-            });
-        } catch {
-            document.getElementById('barcode').innerHTML = '';
-            document.getElementById('errorMsg').textContent = `⚠ 条码无效或含非法字符：${code}`;
+        const validation = validateCode(code);
+        if (!validation.ok) {
+            showError(validation.title, validation.detail);
+        } else {
+            try {
+                JsBarcode('#barcode', code, {
+                    format: 'CODE128',
+                    lineColor: '#1a1a1a',
+                    width: 2.5,
+                    height: 120,
+                    displayValue: true,
+                    fontSize: 18,
+                    fontOptions: 'bold',
+                    font: 'IBM Plex Mono, monospace',
+                    margin: 15,
+                    background: '#ffffff'
+                });
+            } catch (err) {
+                document.getElementById('barcode').innerHTML = '';
+                showError('条码生成失败', `JsBarcode 错误：${err.message || err}\n条码内容：${code}`);
+            }
         }
 
+        // Always update status and buttons regardless of success/failure path
         document.getElementById('statusText').textContent = `${currentIndex + 1} / ${barcodeDataList.length}`;
         updateButtons();
     }
@@ -553,12 +722,13 @@
     function updateButtons() {
         document.getElementById('prevBtn').disabled = currentIndex <= 0;
         document.getElementById('nextBtn').disabled = currentIndex >= barcodeDataList.length - 1 || barcodeDataList.length === 0;
+        document.getElementById('clearBtn').disabled = barcodeDataList.length === 0;
     }
 
     document.addEventListener('keydown', e => {
         if (barcodeDataList.length === 0) return;
         const tag = document.activeElement.tagName;
-        if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+        if (tag === 'TEXTAREA' || tag === 'INPUT' || tag === 'SELECT' || tag === 'BUTTON') return;
         if (e.key === 'ArrowLeft')  { e.preventDefault(); prevBarcode(); }
         if (e.key === 'ArrowRight') { e.preventDefault(); nextBarcode(); }
     });
@@ -566,6 +736,26 @@
     function showLoading(show) {
         document.getElementById('loadingOverlay').classList.toggle('show', show);
     }
+
+    // ── Unified event bindings (no inline onclick in HTML) ──
+    document.getElementById('prevBtn').addEventListener('click', prevBarcode);
+    document.getElementById('nextBtn').addEventListener('click', nextBarcode);
+    document.getElementById('clearBtn').addEventListener('click', clearData);
+    document.getElementById('cancelConfigBtn').addEventListener('click', cancelConfig);
+    document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
+    document.getElementById('loadTextBtn').addEventListener('click', loadFromText);
+    document.getElementById('tabChipBtn').addEventListener('click', setTabDelimiter);
+
+    // Initialise UI from persisted settings
+    (function applyStoredSettings() {
+        document.getElementById('excelStartRow').value = savedSettings.excelStartRow;
+        document.getElementById('excelBarcodeCol').value = savedSettings.excelBarcodeCol;
+        document.getElementById('excelNameCol').value = savedSettings.excelNameCol;
+        const radio = document.querySelector(`input[name="textOrder"][value="${savedSettings.textOrder}"]`);
+        if (radio) radio.checked = true;
+        document.getElementById('textDelimiter').value = savedSettings.textDelimiter;
+        updateConfigButtons();
+    })();
 </script>
 </body>
 </html>
