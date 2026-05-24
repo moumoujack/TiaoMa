@@ -267,6 +267,76 @@
             border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s ease-in-out infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .product-catalog-card {
+            margin-top: 20px;
+        }
+
+        .product-search-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'IBM Plex Sans SC', sans-serif;
+            outline: none;
+            margin-bottom: 14px;
+        }
+
+        .product-search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(26,26,26,0.08);
+        }
+
+        .product-catalog-list {
+            max-height: 320px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .catalog-item {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .catalog-item:last-child {
+            border-bottom: none;
+        }
+
+        .catalog-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .catalog-item.active {
+            background: #f1eee9;
+            border-left: 4px solid var(--accent);
+        }
+
+        .catalog-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .catalog-code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            word-break: break-all;
+        }
+
+        .catalog-empty {
+            padding: 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -369,6 +439,21 @@
             <div class="controls">
                 <button id="prevBtn" class="btn-nav" disabled>← 上一个</button>
                 <button id="nextBtn" class="btn-nav" disabled>下一个 →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card product-catalog-card">
+        <div class="card-header">📦 商品目录</div>
+        <div class="card-body">
+            <input
+                type="text"
+                id="productSearchInput"
+                class="product-search-input"
+                placeholder="搜索商品名称或条形码..."
+            >
+            <div id="productCatalogList" class="product-catalog-list">
+                <div class="catalog-empty">导入数据后这里会显示商品目录</div>
             </div>
         </div>
     </div>
@@ -488,6 +573,67 @@
     let barcodeDataList = [];
     let currentIndex = -1;
 
+    let catalogKeyword = '';
+
+    function renderProductCatalog() {
+        const listEl = document.getElementById('productCatalogList');
+        if (!listEl) return;
+
+        if (barcodeDataList.length === 0) {
+            listEl.innerHTML = '<div class="catalog-empty">导入数据后这里会显示商品目录</div>';
+            return;
+        }
+
+        const keyword = catalogKeyword.trim().toLowerCase();
+
+        const matchedItems = barcodeDataList
+            .map((item, index) => ({ ...item, index }))
+            .filter(item => {
+                if (!keyword) return true;
+                return item.code.toLowerCase().includes(keyword) ||
+                       item.name.toLowerCase().includes(keyword);
+            });
+
+        if (matchedItems.length === 0) {
+            listEl.innerHTML = '<div class="catalog-empty">没有找到匹配商品</div>';
+            return;
+        }
+
+        listEl.innerHTML = matchedItems.map(item => `
+            <div class="catalog-item ${item.index === currentIndex ? 'active' : ''}" data-index="${item.index}">
+                <div class="catalog-name">${item.index + 1}. ${escapeHtml(item.name)}</div>
+                <div class="catalog-code">${escapeHtml(item.code)}</div>
+            </div>
+        `).join('');
+
+        listEl.querySelectorAll('.catalog-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const index = Number(el.dataset.index);
+                jumpToBarcode(index);
+            });
+        });
+    }
+
+    function jumpToBarcode(index) {
+        if (index < 0 || index >= barcodeDataList.length) return;
+        currentIndex = index;
+        renderBarcode();
+
+        const activeItem = document.querySelector('.catalog-item.active');
+        if (activeItem) {
+            activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     document.getElementById('excelFile').addEventListener('change', function (e) {
         if (isConfigDirty()) {
             alert("⚠️ 您的配置已修改，请先点击【保存配置】或【取消更改】，再导入数据！");
@@ -555,6 +701,7 @@
                 renderBarcode();
                 document.getElementById('barcodeWrapper').classList.add('has-data');
                 toggleDrawer(false);
+                renderProductCatalog();
 
             } catch (err) {
                 showLoading(false);
@@ -611,6 +758,7 @@
         document.getElementById('excelFile').value = ''; // 清除文件缓存
         document.getElementById('barcodeWrapper').classList.add('has-data');
         toggleDrawer(false);
+        renderProductCatalog();
         if (skipped > 0) {
             // 延迟提示，避免与抽屉关闭动画冲突
             setTimeout(() => alert(`已加载 ${barcodeDataList.length} 条数据，跳过 ${skipped} 行无效数据（条码为空或缺失）。`), 350);
@@ -639,9 +787,8 @@
         document.getElementById('statusText').textContent = '0 / 0';
         
         updateButtons();
+        renderProductCatalog();
     }
-
-    // --- CODE128 字段校验 ---
     function validateCode(code) {
         // NOTE: callers guarantee code is a non-empty string; this guard is defensive only.
         if (!code) {
@@ -714,6 +861,7 @@
         // Always update status and buttons regardless of success/failure path
         document.getElementById('statusText').textContent = `${currentIndex + 1} / ${barcodeDataList.length}`;
         updateButtons();
+        renderProductCatalog();
     }
 
     function prevBarcode() { if (currentIndex > 0) { currentIndex--; renderBarcode(); } }
@@ -745,6 +893,11 @@
     document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
     document.getElementById('loadTextBtn').addEventListener('click', loadFromText);
     document.getElementById('tabChipBtn').addEventListener('click', setTabDelimiter);
+
+    document.getElementById('productSearchInput').addEventListener('input', function () {
+        catalogKeyword = this.value;
+        renderProductCatalog();
+    });
 
     // Initialise UI from persisted settings
     (function applyStoredSettings() {
