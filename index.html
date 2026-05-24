@@ -89,7 +89,7 @@
 
         .side-drawer {
             position: fixed; top: 0; left: 0; width: 100%; max-width: 360px;
-            height: 100vh; background: var(--card); z-index: 100;
+            height: 100dvh; background: var(--card); z-index: 100;
             box-shadow: 4px 0 24px rgba(0,0,0,0.15);
             transform: translateX(-100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -121,7 +121,7 @@
         /* 底部操作区 */
         .drawer-actions {
             padding: 20px 24px; border-top: 1px solid var(--border);
-            background: var(--hover-bg); display: flex; gap: 16px; 
+            background: var(--hover-bg); display: flex; gap: 16px; flex-shrink: 0;
         }
 
         /* ══ 配置项与按钮样式 ═════════════════════════════════════ */
