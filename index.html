@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>批量条码生成工具</title>
+    <title>批量条码生成工具（含数量成本价）</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -230,8 +230,16 @@
         }
         .barcode-wrapper.has-data { border-style: solid; border-color: #e2ddd5; background: #fdfdfc; }
 
-        #productNameDisplay { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 24px; text-align: center; }
+        #productNameDisplay { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 12px; text-align: center; }
         #productNameDisplay.placeholder { font-size: 16px; color: var(--muted); font-weight: 400; }
+        #productMetaDisplay {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.6;
+            min-height: 24px;
+        }
         #barcode { display: block; }
         .error-msg {
             font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--accent2);
@@ -331,6 +339,13 @@
             word-break: break-all;
         }
 
+        .catalog-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
         .catalog-empty {
             padding: 20px;
             text-align: center;
@@ -379,6 +394,14 @@
                 <label>Excel 名称所在列</label>
                 <div class="rhs">第 <input type="number" id="excelNameCol" class="config-input" value="3" min="0" step="1"> 列</div>
             </div>
+            <div class="cfg-row">
+                <label>Excel 数量所在列</label>
+                <div class="rhs">第 <input type="number" id="excelQuantityCol" class="config-input" value="4" min="0" step="1"> 列</div>
+            </div>
+            <div class="cfg-row">
+                <label>Excel 单价所在列</label>
+                <div class="rhs">第 <input type="number" id="excelPriceCol" class="config-input" value="5" min="0" step="1"> 列</div>
+            </div>
             
             <div class="cfg-row" style="margin-top: 24px;">
                 <label>文本每行字段顺序</label>
@@ -392,7 +415,8 @@
             <div class="cfg-row">
                 <label>文本字段分隔符</label>
                 <div class="rhs">
-                    <input type="text" class="delim-input config-input" id="textDelimiter" placeholder="留空为 Tab">
+                    <input type="text" class="delim-input config-input" id="textDelimiter" placeholder="默认中文逗号">
+                    <button type="button" class="tab-chip" id="commaChipBtn" title="使用中文逗号">，逗号</button>
                     <button type="button" class="tab-chip" id="tabChipBtn" title="插入 Tab 符">↹ Tab</button>
                 </div>
             </div>
@@ -401,7 +425,7 @@
                 <button id="cancelConfigBtn" class="btn btn-sm btn-outline" disabled>取消更改</button>
                 <button id="saveConfigBtn" class="btn btn-sm btn-primary" disabled>保存配置</button>
             </div>
-            <div class="cfg-note">提示：列序号从 1 开始，填 0 忽略名称列；Excel 仅读取第一个工作表。留空分隔符默认识别 Tab。更改配置后请先保存。<br>注意：自定义分隔符不应出现在条码内容中，否则会导致字段切割错误。</div>
+            <div class="cfg-note">提示：列序号从 1 开始，填 0 可忽略对应列；Excel 仅读取第一个工作表。文本推荐使用中文逗号“，”分隔，格式为：条码，名称，数量，成本价。成本价可带“元”，导入时会自动清洗。点击“加载文本”或“导入Excel”时会自动使用并保存当前配置。<br>注意：自定义分隔符不应出现在商品名称或条码内容中，否则会导致字段切割错误。</div>
         </div>
 
         <div class="drawer-section" style="margin-bottom: 0;">
@@ -424,6 +448,7 @@
         <div class="card-body">
             <div class="barcode-wrapper" id="barcodeWrapper">
                 <div id="productNameDisplay" style="color: var(--muted); font-size: 16px;">请点击左上角菜单导入数据…</div>
+                <div id="productMetaDisplay"></div>
                 <svg id="barcode"></svg>
                 <div id="errorMsg" class="error-msg">
                     <div class="err-title"><span id="errIcon" aria-hidden="true"></span><span id="errTitle"></span></div>
@@ -491,8 +516,10 @@
         excelStartRow: '2',
         excelBarcodeCol: '2',
         excelNameCol: '3',
+        excelQuantityCol: '4',
+        excelPriceCol: '5',
         textOrder: 'barcode_first',
-        textDelimiter: ''
+        textDelimiter: '，'
     };
     let savedSettings = (() => {
         try {
@@ -501,21 +528,31 @@
                 const parsed = JSON.parse(stored);
                 // 防御性校验：确保解析结果是普通对象而非数组或原始值
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                    return { ...DEFAULT_SETTINGS, ...parsed };
+                    const merged = { ...DEFAULT_SETTINGS, ...parsed };
+                    // 兼容旧版本：旧版空分隔符代表 Tab；新版默认用中文逗号，更适合 AI 输出。
+                    // 如需 Tab，请点击“↹ Tab”，工具会保存为 \t。
+                    if (!merged.textDelimiter) merged.textDelimiter = '，';
+                    return merged;
                 }
             }
             return { ...DEFAULT_SETTINGS };
         } catch { return { ...DEFAULT_SETTINGS }; }
     })();
 
-    function isConfigDirty() {
-        const current = {
+    function getCurrentSettings() {
+        return {
             excelStartRow: document.getElementById('excelStartRow').value,
             excelBarcodeCol: document.getElementById('excelBarcodeCol').value,
             excelNameCol: document.getElementById('excelNameCol').value,
+            excelQuantityCol: document.getElementById('excelQuantityCol').value,
+            excelPriceCol: document.getElementById('excelPriceCol').value,
             textOrder: document.querySelector('input[name="textOrder"]:checked').value,
-            textDelimiter: document.getElementById('textDelimiter').value
+            textDelimiter: document.getElementById('textDelimiter').value || '，'
         };
+    }
+
+    function isConfigDirty() {
+        const current = getCurrentSettings();
         for (const key in savedSettings) {
             if (savedSettings[key] !== current[key]) return true;
         }
@@ -542,13 +579,7 @@
     });
 
     function saveConfig() {
-        savedSettings = {
-            excelStartRow: document.getElementById('excelStartRow').value,
-            excelBarcodeCol: document.getElementById('excelBarcodeCol').value,
-            excelNameCol: document.getElementById('excelNameCol').value,
-            textOrder: document.querySelector('input[name="textOrder"]:checked').value,
-            textDelimiter: document.getElementById('textDelimiter').value
-        };
+        savedSettings = getCurrentSettings();
         try { localStorage.setItem('barcodeToolSettings', JSON.stringify(savedSettings)); } catch {}
         checkConfigDirty();
     }
@@ -557,6 +588,8 @@
         document.getElementById('excelStartRow').value = savedSettings.excelStartRow;
         document.getElementById('excelBarcodeCol').value = savedSettings.excelBarcodeCol;
         document.getElementById('excelNameCol').value = savedSettings.excelNameCol;
+        document.getElementById('excelQuantityCol').value = savedSettings.excelQuantityCol;
+        document.getElementById('excelPriceCol').value = savedSettings.excelPriceCol;
         document.querySelector(`input[name="textOrder"][value="${savedSettings.textOrder}"]`).checked = true;
         document.getElementById('textDelimiter').value = savedSettings.textDelimiter;
         checkConfigDirty();
@@ -603,6 +636,7 @@
             <div class="catalog-item ${item.index === currentIndex ? 'active' : ''}" data-index="${item.index}">
                 <div class="catalog-name">${item.index + 1}. ${escapeHtml(item.name)}</div>
                 <div class="catalog-code">${escapeHtml(item.code)}</div>
+                <div class="catalog-meta">数量：${escapeHtml(item.quantity || '-')}　成本价：${escapeHtml(formatPriceForDisplay(item.price))}</div>
             </div>
         `).join('');
 
@@ -635,11 +669,8 @@
     }
 
     document.getElementById('excelFile').addEventListener('change', function (e) {
-        if (isConfigDirty()) {
-            alert("⚠️ 您的配置已修改，请先点击【保存配置】或【取消更改】，再导入数据！");
-            document.getElementById('excelFile').value = ''; // 重置文件选择
-            return;
-        }
+        // 直接使用当前界面配置，并自动保存，避免手机端反复弹出“配置已修改”。
+        if (isConfigDirty()) saveConfig();
 
         const file = e.target.files[0];
         if (!file) return;
@@ -660,11 +691,13 @@
                     document.getElementById('excelFile').value = '';
                     return;
                 }
-                // 使用已保存的配置
+                // 使用当前已保存配置
                 const cfg = {
                     startRow:   Math.max(1, Math.round(parseFloat(savedSettings.excelStartRow)) || 2),
                     barcodeCol: Math.max(1, Math.round(parseFloat(savedSettings.excelBarcodeCol)) || 2),
                     nameCol:    Math.max(0, Math.round(parseFloat(savedSettings.excelNameCol)) || 0),
+                    quantityCol: Math.max(0, Math.round(parseFloat(savedSettings.excelQuantityCol)) || 0),
+                    priceCol:    Math.max(0, Math.round(parseFloat(savedSettings.excelPriceCol)) || 0),
                 };
 
                 const data = new Uint8Array(ev.target.result);
@@ -686,7 +719,17 @@
                         const n = (row[cfg.nameCol - 1] ?? '').toString().trim();
                         if (n !== '') name = n;
                     }
-                    barcodeDataList.push({ code, name });
+                    let quantity = '';
+                    if (cfg.quantityCol > 0) {
+                        quantity = (row[cfg.quantityCol - 1] ?? '').toString().trim();
+                    }
+
+                    let price = '';
+                    if (cfg.priceCol > 0) {
+                        price = cleanPrice(row[cfg.priceCol - 1]);
+                    }
+
+                    barcodeDataList.push(normalizeProductItem({ code, name, quantity, price }));
                 }
 
                 showLoading(false);
@@ -714,10 +757,7 @@
     });
 
     function loadFromText() {
-        if (isConfigDirty()) {
-            alert("⚠️ 您的配置已修改，请先点击【保存配置】或【取消更改】，再加载文本！");
-            return;
-        }
+        if (isConfigDirty()) saveConfig();
 
         const order = savedSettings.textOrder;
         const delim = savedSettings.textDelimiter === '' ? '\t' : savedSettings.textDelimiter;
@@ -728,23 +768,38 @@
         if (lines.length === 0) { alert('文本框为空，请输入至少一行数据！'); return; }
 
         barcodeDataList = lines.map(line => {
-            // barcode_first: use first delimiter (barcode on left, name can contain delimiter)
-            // name_first:    use last delimiter  (name on left,    code on right)
-            const idx = order === 'barcode_first' ? line.indexOf(delim) : line.lastIndexOf(delim);
-            if (idx === -1) {
-                // No delimiter found: entire line is treated according to mode
-                // barcode_first → whole line is the code
-                // name_first    → whole line is the name, code is missing
+            const parts = splitTextLine(line, delim);
+
+            // 支持 4 列：条码，名称，进货数量，成本价
+            // 成本价可写成 2.33 或 2.33元；内部保存时自动去掉“元”。
+            if (parts.length >= 4) {
                 if (order === 'name_first') {
-                    return { code: '', name: line };  // validateCode will surface the error
+                    return normalizeProductItem({
+                        name: parts[0],
+                        code: parts[1],
+                        quantity: parts[2],
+                        price: parts.slice(3).join(delim)
+                    });
                 }
-                return { code: line, name: '（无商品名称）' };
+                return normalizeProductItem({
+                    code: parts[0],
+                    name: parts[1],
+                    quantity: parts[2],
+                    price: parts.slice(3).join(delim)
+                });
             }
-            const a = line.slice(0, idx).trim();
-            const b = line.slice(idx + delim.length).trim();
-            return order === 'barcode_first'
-                ? { code: a, name: b || '（无商品名称）' }
-                : { code: b, name: a || '（无商品名称）' };
+
+            // 兼容旧格式：条码 + 名称
+            if (parts.length >= 2) {
+                return order === 'barcode_first'
+                    ? normalizeProductItem({ code: parts[0], name: parts.slice(1).join(delim) || '（无商品名称）' })
+                    : normalizeProductItem({ code: parts[parts.length - 1], name: parts.slice(0, -1).join(delim) || '（无商品名称）' });
+            }
+
+            if (order === 'name_first') {
+                return normalizeProductItem({ code: '', name: line });
+            }
+            return normalizeProductItem({ code: line, name: '（无商品名称）' });
         }).filter(item => item.code !== '');  // 与 Excel 路径对齐：空条码不入列表
 
         const skipped = lines.length - barcodeDataList.length;
@@ -781,6 +836,7 @@
         const nameEl = document.getElementById('productNameDisplay');
         nameEl.textContent = '请点击左上角菜单导入数据…';
         nameEl.classList.add('placeholder');
+        document.getElementById('productMetaDisplay').textContent = '';
         
         document.getElementById('barcode').innerHTML = '';
         clearError();
@@ -826,11 +882,13 @@
 
     function renderBarcode() {
         if (currentIndex < 0 || currentIndex >= barcodeDataList.length) return;
-        const { code, name } = barcodeDataList[currentIndex];
+        const { code, name, quantity, price } = barcodeDataList[currentIndex];
         
         const nameEl = document.getElementById('productNameDisplay');
+        const metaEl = document.getElementById('productMetaDisplay');
         nameEl.textContent = name;
         nameEl.classList.remove('placeholder');
+        metaEl.textContent = `数量：${quantity || '-'}　成本价：${formatPriceForDisplay(price)}`;
         
         clearError();
         document.getElementById('barcode').innerHTML = '';
@@ -885,14 +943,55 @@
         document.getElementById('loadingOverlay').classList.toggle('show', show);
     }
 
+    // ── Helper functions ──
+
+    function setCommaDelimiter() {
+        document.getElementById('textDelimiter').value = '，';
+        checkConfigDirty();
+    }
+
+    function splitTextLine(line, delim) {
+        const delimiter = delim === '' ? '\t' : (delim || '，');
+        return String(line).split(delimiter).map(s => s.trim());
+    }
+
+    function cleanPrice(value) {
+        if (value === null || value === undefined) return '';
+        return String(value)
+            .replace(/[￥¥元\s]/g, '')
+            .trim();
+    }
+
+    function normalizeProductItem(item) {
+        return {
+            code: String(item.code || '').trim(),
+            name: String(item.name || '（无商品名称）').trim(),
+            quantity: String(item.quantity || '').trim(),
+            price: cleanPrice(item.price || '')
+        };
+    }
+
+    function formatPriceForDisplay(price) {
+        const p = cleanPrice(price);
+        return p ? `${p} 元` : '-';
+    }
+
     // ── Unified event bindings (no inline onclick in HTML) ──
     document.getElementById('prevBtn').addEventListener('click', prevBarcode);
     document.getElementById('nextBtn').addEventListener('click', nextBarcode);
     document.getElementById('clearBtn').addEventListener('click', clearData);
     document.getElementById('cancelConfigBtn').addEventListener('click', cancelConfig);
     document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
-    document.getElementById('loadTextBtn').addEventListener('click', loadFromText);
+    document.getElementById('loadTextBtn').addEventListener('click', function () {
+        try {
+            loadFromText();
+        } catch (err) {
+            console.error(err);
+            alert('加载文本失败：' + (err.message || err));
+        }
+    });
     document.getElementById('tabChipBtn').addEventListener('click', setTabDelimiter);
+    document.getElementById('commaChipBtn').addEventListener('click', setCommaDelimiter);
 
     document.getElementById('productSearchInput').addEventListener('input', function () {
         catalogKeyword = this.value;
@@ -904,6 +1003,8 @@
         document.getElementById('excelStartRow').value = savedSettings.excelStartRow;
         document.getElementById('excelBarcodeCol').value = savedSettings.excelBarcodeCol;
         document.getElementById('excelNameCol').value = savedSettings.excelNameCol;
+        document.getElementById('excelQuantityCol').value = savedSettings.excelQuantityCol;
+        document.getElementById('excelPriceCol').value = savedSettings.excelPriceCol;
         const radio = document.querySelector(`input[name="textOrder"][value="${savedSettings.textOrder}"]`);
         if (radio) radio.checked = true;
         document.getElementById('textDelimiter').value = savedSettings.textDelimiter;
